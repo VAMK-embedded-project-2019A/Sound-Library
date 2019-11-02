@@ -91,6 +91,11 @@ void MusicPlayer::stop()
     engine->drop();
 }
 
+bool MusicPlayer::isPlaying()
+{
+    return !sound->isFinished();
+}
+
 //bool MusicPlayer::hasError() const
 //{
 //        return _is_error;

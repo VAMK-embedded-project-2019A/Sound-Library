@@ -31,7 +31,7 @@ public:
     void setFileName(std::string file_name);
     std::string getFileName();
     void play();
-//    bool isPlaying();
+    bool isPlaying();
     void pause();
     void resume();
     void stop();

@@ -17,14 +17,38 @@
 int main(int argc, const char * argv[]) {
     std::cout << "Hello, World!\n";
     
+    char option;
     MusicPlayer song;
     song.setFileName("getout.ogg");
-    do
+    song.play();
+    
+    std::cout << " To stop the song, press: q\n" << std::endl
+            << "To pause the song, press: p \n" << std::endl
+            << "To resume the song, press: r \n" << std::endl;
+    
+    while(song.isPlaying())
     {
-        song.play();
+        std::cout << "Options for the song: ";
+        std::cin >> option;
+        
+        switch (option) {
+            case 'q':
+                song.stop();
+                break;
+                
+            case 'p':
+                song.pause();
+                break;
+                
+            case 'r':
+                song.resume();
+                break;
+                
+            default:
+                break;
+        }
     }
-    while(getch() != 'q');
-    song.stop();
+
 
     return 0;
 }

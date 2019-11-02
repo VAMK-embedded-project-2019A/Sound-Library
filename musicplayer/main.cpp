@@ -34,14 +34,17 @@ int main(int argc, const char * argv[]) {
         switch (option) {
             case 'q':
                 song.stop();
+                std::cout << "Song is stopped\n";
                 break;
                 
             case 'p':
                 song.pause();
+                std::cout << "Song is paused\n";
                 break;
                 
             case 'r':
                 song.resume();
+                std::cout << "Song is continued playing\n";
                 break;
                 
             default:

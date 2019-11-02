@@ -88,7 +88,7 @@ void MusicPlayer::resume()
     
 void MusicPlayer::stop()
 {
-    engine->drop();
+    sound->stop();
 }
 
 bool MusicPlayer::isPlaying()

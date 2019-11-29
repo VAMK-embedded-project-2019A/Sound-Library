@@ -3,7 +3,7 @@ GPP = g++
 
 
 all:
-	$(GPP) main.cpp musicplayer.cpp -o main -lmpg123 -lao
+	$(GPP) main.cpp musicplayer.cpp -o main -lmpg123 -lout123
 	#$(CPP) main.cpp musicplayer.cpp -o main $(OPTS)
 
 clean:

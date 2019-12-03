@@ -47,7 +47,8 @@ private:
     //const char *encname;
     int channels, encoding, err;
     //int frameSize;
-    long rate;
+    long rate; 
+    bool _is_Playing{true};
 };
 
 #endif /* musicplayer_h */

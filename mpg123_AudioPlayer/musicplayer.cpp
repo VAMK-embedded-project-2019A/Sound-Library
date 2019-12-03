@@ -83,6 +83,20 @@ void MusicPlayer::init()
 }*/
 
 void MusicPlayer::loadSong() {
+    //handle to accept all format (also any custom rate)
+    //mpg123_format_all(mh);
+//    long r = 48000;
+//    const long *rates;
+//    rates = &r;
+//    size_t rate_count, i;
+//    int enc = out123_enc_byname("48000");
+    mpg123_format_none(mh);
+//    mpg123_rates(&rates, &rate_count);
+//    for (i = 0; i < rate_count; ++i)
+//    {
+//        mpg123_format(mh, rates[i], MPG123_MONO|MPG123_STEREO, enc);
+//    }
+    mpg123_format(mh, rate, channels, encoding);
     int opened_file = mpg123_open(mh, _file_name);
     int format_file = mpg123_getformat(mh, &rate, &channels, &encoding);
     if(opened_file != MPG123_OK || format_file != MPG123_OK)
@@ -97,10 +111,7 @@ void MusicPlayer::loadSong() {
         fprintf(stderr, "Trouble with out123: %s\n", out123_strerror(ao));
         CleanUp(mh, ao);
     }
-
-    //handle to accept all format (also any custom rate)
-    mpg123_format_all(mh);
-    mpg123_format(mh, rate, channels, encoding);
+    //mpg123_format(mh, rate, channels, encoding);
     out123_start(ao, rate, channels, encoding);
 
     buffer_size = mpg123_outblock(mh);
@@ -110,7 +121,7 @@ void MusicPlayer::loadSong() {
 
 void MusicPlayer::play()
 {
-    mpg123_seek(mh, 0, SEEK_SET); // SEEK_SET: set positions to (or near to) specified offset
+    //mpg123_seek(mh, 0, SEEK_SET); // SEEK_SET: set positions to (or near to) specified offset
 
     do
     {
@@ -129,7 +140,7 @@ void MusicPlayer::resume()
     out123_continue(ao);
 }
 
-void MusicPlayer::Stop()
+void MusicPlayer::stop()
 {
     out123_drop(ao);
     out123_stop(ao);
@@ -137,7 +148,7 @@ void MusicPlayer::Stop()
 
 bool MusicPlayer::isPlaying()
 {
-    return !played.Play();
+    return _is_Playing;
 }
 
 void MusicPlayer::CleanUp(mpg123_handle *mh, out123_handle *ao)
@@ -147,5 +158,4 @@ void MusicPlayer::CleanUp(mpg123_handle *mh, out123_handle *ao)
     mpg123_close(mh);
     mpg123_delete(mh);
     mpg123_exit();
-    ao_shutdown();
 }

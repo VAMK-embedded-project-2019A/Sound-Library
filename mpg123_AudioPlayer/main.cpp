@@ -4,7 +4,7 @@
 //
 //  Created by Linh Nguyen on 30.10.2019.
 //  Copyright © 2019 Linh Nguyen. All rights reserved.
-//  Modification 03.12.2019 Linh Nguyen
+//
 
 #include <iostream>
 #include <cstring>

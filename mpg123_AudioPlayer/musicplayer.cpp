@@ -61,42 +61,9 @@ void MusicPlayer::init()
     }
 }
 
-
-/*void MusicPlayer::loadSong(){
-    int opened_file = open(_file_name, O_RDONLY);
-    if(opened_file < 0){
-        std::cout << "ERROR opening file: " << strerror(opened_file) << "\n";
-        exit(0);
-    }
-    close(opened_file);
-
-    // Open file and get the decoding format
-    int opened_val = mpg123_open(mh, _file_name);
-    mpg123_getformat(mh, &rate, &channels,  &encoding);
-
-    format.bits = mpg123_encsize(encoding) * BITS;
-    format.rate = rate;
-    format.channels = channels;
-    format.byte_format = AO_FMT_NATIVE;
-    format.matrix = 0;
-    dev = ao_open_live(driver, &format, NULL);
-}*/
-
 void MusicPlayer::loadSong() {
-    //handle to accept all format (also any custom rate)
-    //mpg123_format_all(mh);
-//    long r = 48000;
-//    const long *rates;
-//    rates = &r;
-//    size_t rate_count, i;
-//    int enc = out123_enc_byname("48000");
-    mpg123_format_none(mh);
-//    mpg123_rates(&rates, &rate_count);
-//    for (i = 0; i < rate_count; ++i)
-//    {
-//        mpg123_format(mh, rates[i], MPG123_MONO|MPG123_STEREO, enc);
-//    }
-    mpg123_format(mh, rate, channels, encoding);
+
+    //mpg123_format(mh, &r, &channels, &encoding);
     int opened_file = mpg123_open(mh, _file_name);
     int format_file = mpg123_getformat(mh, &rate, &channels, &encoding);
     if(opened_file != MPG123_OK || format_file != MPG123_OK)
@@ -111,7 +78,7 @@ void MusicPlayer::loadSong() {
         fprintf(stderr, "Trouble with out123: %s\n", out123_strerror(ao));
         CleanUp(mh, ao);
     }
-    //mpg123_format(mh, rate, channels, encoding);
+    mpg123_format(mh, rate, channels, encoding);
     out123_start(ao, rate, channels, encoding);
 
     buffer_size = mpg123_outblock(mh);
@@ -121,34 +88,81 @@ void MusicPlayer::loadSong() {
 
 void MusicPlayer::play()
 {
-    //mpg123_seek(mh, 0, SEEK_SET); // SEEK_SET: set positions to (or near to) specified offset
+    _state = State::play_live;
 
     do
     {
        err = mpg123_read(mh, buffer, buffer_size, &done);
-       played = out123_play(ao, buffer, done);
+       out123_play(ao, buffer, done);
+
+       switch(_control_request)
+       {
+           case Pause:
+               pause();
+               break;
+
+           case Stop:
+               stop();
+               break;
+
+           case Continue:
+               resume();
+               break;
+
+           case Next:
+               break;
+
+           case Prev:
+               break;
+
+           default:
+               break;
+       }
+
     } while( done && err == MPG123_OK);
+  
 }
 
 void MusicPlayer::pause()
 {
-    out123_pause(ao);
+    /*if(isPlaying()){
+        out123_pause(ao);
+        _state = State::play_paused;
+    }  */
 }
 
 void MusicPlayer::resume()
 {
-    out123_continue(ao);
+    if(!isPlaying()){
+        out123_continue(ao);
+        err = out123_errcode(ao);
+        if(err == OUT123_BAD_HANDLE)
+        {
+            fprintf(stderr, "Trouble with out123: %s\n", out123_plain_strerror(err));
+            CleanUp(mh, ao);
+        }
+        
+        _state = State::play_live;
+    }
 }
 
 void MusicPlayer::stop()
 {
     out123_drop(ao);
     out123_stop(ao);
+    _state = State::play_stopped;
 }
 
 bool MusicPlayer::isPlaying()
 {
-    return _is_Playing;
+    return (_state == State::play_live);
+}
+
+bool MusicPlayer::Control_Requested(Control_Requests_Enum _request) {
+    if(_control_request != None)
+        return false;
+    _control_request = _request;
+    return true;
 }
 
 void MusicPlayer::CleanUp(mpg123_handle *mh, out123_handle *ao)

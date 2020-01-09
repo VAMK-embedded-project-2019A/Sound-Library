@@ -1,7 +1,7 @@
 # Sound-Library
 -------
 
-1. Start setting up audio working on Raspberry Pi 3 with Raspbian
+#### 1. Start setting up audio working on Raspberry Pi 3 with Raspbian
 -  For any version [Raspbian Buster](https://www.raspberrypi.org/downloads/raspbian/), ALSA and its dependencies are pre-installed with the operating system. 
 
 - For older version of Raspbian, check if it has ALSA and dependencies installed, otherwise, following [this instruction](https://alsa.opensrc.org/Quick_Install) to install ALSA.
@@ -51,7 +51,7 @@
 
 - Or create configuration file **asound.conf** at root: /etc/asound.conf with the same code above.
 
-2. mpg123 library
+#### 2. mpg123 library
 - This music player project is built based on the library [mpg123 and libout123](https://www.mpg123.de/#2019-10-26)
 
 - Install libmpg123, you may need to install package mpg123 separately if mpg123 command does not work. 
@@ -62,7 +62,7 @@
 
 - In latest release, libout123 automatically installed with mpg123, if libout123(out123.so) is lacked in any older version, install libout123 separately by following [this instruction](http://www.linuxfromscratch.org/blfs/view/svn/multimedia/mpg123.html)
 
-3. Test mpg123
+#### 3. Test mpg123
 
 - Normally, simply use mpg123 command:
     > mpg123 file_name.mp3
@@ -75,7 +75,7 @@
 - If mpg123 does not work, it could be the error of picking up wrong output port, try this command by using ALSA to specify output hardware:
     > aplay -l mpg123 -a hw:1,0 file_name.mp3
 
-4. Compile and run our code
+#### 4. Compile and run our code
 -  Simply run 
     > make 
     

@@ -88,25 +88,31 @@ void MusicPlayer::loadSong() {
 
 void MusicPlayer::play()
 {
-    _state = State::play_live;
+	_state = State::play_live;
+//	_control_request = None;
 
+	bool stop_feed{false};
+//	bool stop_song{false};
     do
     {
-       err = mpg123_read(mh, buffer, buffer_size, &done);
-       out123_play(ao, buffer, done);
+	if(!stop_feed)
+	{
+		err = mpg123_read(mh, buffer, buffer_size, &done);
+		out123_play(ao, buffer, done);
+	}
 
        switch(_control_request)
        {
            case Pause:
-               pause();
+		stop_feed = true;
                break;
 
            case Stop:
-               stop();
+		stop_feed = true;
                break;
 
            case Continue:
-               resume();
+		stop_feed = false;
                break;
 
            case Next:
@@ -119,16 +125,19 @@ void MusicPlayer::play()
                break;
        }
 
+//	if(stop_song)
+//		break;
+
     } while( done && err == MPG123_OK);
-  
+	_state = State::play_stopped;
 }
 
 void MusicPlayer::pause()
 {
-    /*if(isPlaying()){
-        out123_pause(ao);
-        _state = State::play_paused;
-    }  */
+//    if(isPlaying()){
+//        out123_pause(ao);
+//        _state = State::play_paused;
+//    }  
 }
 
 void MusicPlayer::resume()
@@ -159,7 +168,7 @@ bool MusicPlayer::isPlaying()
 }
 
 bool MusicPlayer::Control_Requested(Control_Requests_Enum _request) {
-    if(_control_request != None)
+    if(_control_request == None)
         return false;
     _control_request = _request;
     return true;

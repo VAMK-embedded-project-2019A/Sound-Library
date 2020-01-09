@@ -36,16 +36,17 @@
     > nano ~/.asoundrc 
 
 - Copy and paste the following code and save it:
-```pcm.!default {
-            type plug
-            slave {
-                pcm "hw:1,0"
-            }
-      }
-    ctl.!default {
-           type hw           
-            card 1
-     }
+```
+	pcm.!default {
+        	type plug
+            	slave {
+                	pcm "hw:1,0"
+            	}
+      	}
+	ctl.!default {
+        	type hw           
+        	card 1
+     	}
 ```
 
 - Or create configuration file **asound.conf** at root: /etc/asound.conf with the same code above.

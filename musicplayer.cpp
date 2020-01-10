@@ -43,7 +43,6 @@ MusicPlayer::~MusicPlayer()
 
 void MusicPlayer::start()
 {
-	bool handles_opened{false};
 	while(true)
 	{
 		if(hasError())
@@ -53,27 +52,24 @@ void MusicPlayer::start()
 		switch(request)
 		{
 			case ControlRequest::Play:
-				if(handles_opened)
-					break;
-				loadSong();
-				handles_opened = true;
-				setIsPlaying(true);
+				handlePlayRequest();
 				break;
 			case ControlRequest::Stop:
-				if(!handles_opened)
-					break;
-				out123_close(_out_handle);
-				mpg123_close(_mpg_handle);
-				handles_opened = false;
-				setIsPlaying(false);
+				handleStopRequest();
 				break;
 			case ControlRequest::Pause:
-				if(handles_opened)
+				if(handlesOpened())
 					setIsPlaying(false);
 				break;
 			case ControlRequest::Resume:
-				if(handles_opened)
+				if(handlesOpened())
 					setIsPlaying(true);
+				break;
+			case ControlRequest::Next:
+				handleNextRequest();
+				break;
+			case ControlRequest::Prev:
+				handlePrevRequest();
 				break;
 		}
 			
@@ -87,13 +83,7 @@ void MusicPlayer::start()
 		int err = mpg123_read(_mpg_handle, _out_block, _out_block_size, &written_bytes_count);
 		out123_play(_out_handle, _out_block, written_bytes_count);
 		if(written_bytes_count == 0 || err != MPG123_OK)
-		{
-			std::cout << "end" << std::endl;
-			out123_close(_out_handle);
-			mpg123_close(_mpg_handle);
-			handles_opened = false;
-			setIsPlaying(false);
-		}
+			handleStopRequest();
 	}
 }
 
@@ -115,10 +105,22 @@ std::string MusicPlayer::getCurrentSong()
 	return _current_song;
 }
 
+std::string MusicPlayer::getNextSong()
+{
+	std::unique_lock<std::mutex> music_player_lock(_mutex);
+	return _next_song;
+}
+
 void MusicPlayer::setCurrentSong(const std::string &name)
 {
 	std::unique_lock<std::mutex> music_player_lock(_mutex);
 	_current_song = name;
+}
+
+void MusicPlayer::setNextSong(const std::string &name)
+{
+	std::unique_lock<std::mutex> music_player_lock(_mutex);
+	_next_song = name;
 }
 
 bool MusicPlayer::control(ControlRequest request)
@@ -140,6 +142,18 @@ void MusicPlayer::setIsPlaying(bool is_playing)
 {
 	std::unique_lock<std::mutex> music_player_lock(_mutex);
 	_is_playing = is_playing;
+}
+
+void MusicPlayer::setHandlesOpened(bool handles_opened)
+{
+	std::unique_lock<std::mutex> music_player_lock(_mutex);
+	_handles_opened = handles_opened;
+}
+
+bool MusicPlayer::handlesOpened()
+{
+	std::unique_lock<std::mutex> music_player_lock(_mutex);
+	return _handles_opened;
 }
 
 MusicPlayer::ControlRequest MusicPlayer::getRequest()
@@ -187,4 +201,56 @@ void MusicPlayer::loadSong()
 		_out_block = nullptr;
 	}
 	_out_block = new unsigned char[_out_block_size];
+	_handles_opened = true;
+}
+
+void MusicPlayer::handlePlayRequest()
+{
+	if(handlesOpened())
+		return;
+	if(getCurrentSong().empty())
+		setCurrentSong("Downloading next song.mp3");
+	loadSong();
+	setHandlesOpened(true);
+	setIsPlaying(true);
+}
+
+void MusicPlayer::handleStopRequest()
+{
+	if(!handlesOpened())
+		return;
+	out123_close(_out_handle);
+	mpg123_close(_mpg_handle);
+	setHandlesOpened(false);
+	setIsPlaying(false);
+}
+
+void MusicPlayer::handleNextRequest()
+{
+	std::unique_lock<std::mutex> music_player_lock(_mutex);
+	if(!_current_song.empty())
+	{
+		while(_song_history.size() >= MAX_HISTORY)
+			_song_history.erase(_song_history.begin());
+		_song_history.push_back(_current_song);
+	}
+	_current_song = _next_song;
+	_next_song.clear();
+	music_player_lock.unlock();
+	
+	handleStopRequest();
+	handlePlayRequest();
+}
+
+void MusicPlayer::handlePrevRequest()
+{
+	std::unique_lock<std::mutex> music_player_lock(_mutex);
+	if(_song_history.empty())
+		return;
+	_current_song = _song_history.back();
+	_song_history.pop_back();
+	music_player_lock.unlock();
+	
+	handleStopRequest();
+	handlePlayRequest();
 }

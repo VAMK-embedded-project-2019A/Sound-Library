@@ -22,6 +22,8 @@ public:
         Resume,
         Next,
         Prev,
+		VolumeUp,
+		VolumeDown,
         None
     };
 	
@@ -61,6 +63,9 @@ private:
 	
 	std::vector<std::string> _song_history;
 	const unsigned int MAX_HISTORY{10};
+	
+	const double MAX_VOLUME{0.5};
+	const double VOLUME_PRECISION{0.005};
 	
 	bool _error{false};
 	std::mutex _mutex;

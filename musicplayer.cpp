@@ -9,22 +9,23 @@ MusicPlayer::MusicPlayer()
     int err = mpg123_init();
 	if(err != MPG123_OK)
 	{
-        fprintf(stderr, "Basic setup goes wrong : %s\n", mpg123_plain_strerror(err));
+        std::cout << "Basic setup goes wrong: " << mpg123_plain_strerror(err) << std::endl;
         setError(true);
 		return;
     }
     _mpg_handle = mpg123_new(nullptr, &err);
     if(err != MPG123_OK || _mpg_handle == nullptr)
     {
-        fprintf(stderr, "Basic setup goes wrong : %s\n", mpg123_plain_strerror(err));
+        std::cout << "Basic setup goes wrong: " << mpg123_plain_strerror(err) << std::endl;
         setError(true);
 		return;
     }
+	mpg123_volume(_mpg_handle, 0.025);
 
     _out_handle = out123_new();
     if(!_out_handle)
 	{
-        fprintf(stderr, "Cannot create output handle \n");
+		std::cout << "Cannot create output handle" << std::endl;
         setError(true);
 		return;
     }
@@ -70,6 +71,18 @@ void MusicPlayer::start()
 				break;
 			case ControlRequest::Prev:
 				handlePrevRequest();
+				break;
+			case ControlRequest::VolumeUp:
+			{
+				double base, really, rva;
+				mpg123_getvolume(_mpg_handle, &base, &really, &rva);
+				if(really + VOLUME_PRECISION > MAX_VOLUME)
+					break;
+				mpg123_volume_change(_mpg_handle, VOLUME_PRECISION);
+				break;
+			}
+			case ControlRequest::VolumeDown:
+				mpg123_volume_change(_mpg_handle, -VOLUME_PRECISION);
 				break;
 		}
 			
@@ -169,7 +182,7 @@ void MusicPlayer::loadSong()
     int err = mpg123_open(_mpg_handle, getCurrentSong().c_str());
 	if(err != MPG123_OK)
     {
-        fprintf(stderr, "Trouble with mpg123_open: %s \n", mpg123_strerror(_mpg_handle));
+		std::cout << "Trouble with mpg123_open: " << mpg123_strerror(_mpg_handle) << std::endl;
         setError(true);
 		return;
     }
@@ -179,7 +192,7 @@ void MusicPlayer::loadSong()
     err = mpg123_getformat(_mpg_handle, &rate, &channels, &encoding);
     if(err != MPG123_OK)
     {
-        fprintf(stderr, "Trouble with mpg123_getformat: %s \n", mpg123_strerror(_mpg_handle));
+		std::cout << "Trouble with mpg123_getformat: " << mpg123_strerror(_mpg_handle) << std::endl;
         setError(true);
 		return;
     }
@@ -187,7 +200,7 @@ void MusicPlayer::loadSong()
     err = out123_open(_out_handle, nullptr, nullptr);
     if(err != 0)
     {
-        fprintf(stderr, "Trouble with out123: %s\n", out123_strerror(_out_handle));
+		std::cout << "Trouble with out123: " << out123_strerror(_out_handle) << std::endl;
         setError(true);
 		return;
     }

@@ -18,7 +18,7 @@ int main()
 	while(true)
 	{
 		std::string option;
-		std::cout << "Options: play/stop/pause/resume/next/prev: ";
+		std::cout << "Options: play/stop/pause/resume/next/prev/volup/voldown: ";
 		std::cin >> option;
 		if(option == "play")
 			mp.control(MusicPlayer::ControlRequest::Play);
@@ -32,6 +32,10 @@ int main()
 			mp.control(MusicPlayer::ControlRequest::Next);
 		else if(option == "prev")
 			mp.control(MusicPlayer::ControlRequest::Prev);
+		else if(option == "volup")
+			mp.control(MusicPlayer::ControlRequest::VolumeUp);
+		else if(option == "voldown")
+			mp.control(MusicPlayer::ControlRequest::VolumeDown);
 	}
 	return 0;
 }

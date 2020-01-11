@@ -70,7 +70,7 @@ private:
 	const double MAX_VOLUME{0.5};
 	const double VOLUME_PRECISION{0.005};
 	const std::string FILE_PATH{"./"};
-	const std::string WAITING_TRACK{FILE_PATH + "Downloading next song.mp3"};
+	const std::string WAITING_TRACK{"Downloading next song.mp3"};
 	bool _waiting_next_song{false};
 };
 

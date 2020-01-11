@@ -140,12 +140,22 @@ int MusicPlayer::getVolume()
 void MusicPlayer::setCurrentSong(const std::string &name)
 {
 	std::unique_lock<std::mutex> music_player_lock(_mutex);
+	if(name.empty())
+	{
+		_current_song.clear();
+		return;
+	}
 	_current_song = FILE_PATH + name;
 }
 
 void MusicPlayer::setNextSong(const std::string &name)
 {
 	std::unique_lock<std::mutex> music_player_lock(_mutex);
+	if(name.empty())
+	{
+		_next_song.clear();
+		return;
+	}
 	_next_song = FILE_PATH + name;
 }
 

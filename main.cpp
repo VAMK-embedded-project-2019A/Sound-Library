@@ -11,7 +11,7 @@ int main()
 	MusicPlayer mp;
 	auto _future_song = std::async(std::launch::async, &MusicPlayer::start, &mp);
 	while(_future_song.wait_for(std::chrono::seconds(0)) == std::future_status::deferred);
-	mp.setCurrentSong("Alan Walker - Fade.mp3");
+	mp.setCurrentSong("Billie Eilish - Bad Guy.mp3");
 	mp.setNextSong("Alan Walker - Force.mp3");
 	mp.control(MusicPlayer::ControlRequest::Play);
 	while(!mp.isPlaying()); // waiting for mp to start playing

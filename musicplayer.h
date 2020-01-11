@@ -32,6 +32,7 @@ public:
 	bool hasError();
 	std::string getCurrentSong();
 	std::string getNextSong();
+	int getVolume();
 	
 	void setCurrentSong(const std::string &name);
 	void setNextSong(const std::string &name);
@@ -40,8 +41,6 @@ public:
 private:
 	void setError(bool error);
 	void setIsPlaying(bool is_playing);
-	void setHandlesOpened(bool handles_opened);
-	bool handlesOpened();
 	ControlRequest getRequest();
 	void loadSong();
 	
@@ -50,25 +49,28 @@ private:
 	void handleNextRequest();
 	void handlePrevRequest();
 
+	// handles and lib properties
 	mpg123_handle *_mpg_handle = nullptr;
     out123_handle *_out_handle = nullptr;
 	size_t _out_block_size;
 	unsigned char *_out_block{nullptr};
 
+	// properties that can be accessed from many threads
 	std::string _current_song;
 	std::string _next_song;
-	bool _is_playing{false};
-	bool _handles_opened{false};
 	ControlRequest _control_request{None};
-	
-	std::vector<std::string> _song_history;
-	const unsigned int MAX_HISTORY{10};
-	
-	const double MAX_VOLUME{0.5};
-	const double VOLUME_PRECISION{0.005};
-	
+	bool _is_playing{false};
 	bool _error{false};
 	std::mutex _mutex;
+	
+	// private
+	bool _handles_opened{false};
+	std::vector<std::string> _song_history;
+	const unsigned int MAX_HISTORY{10};
+	const double MAX_VOLUME{0.5};
+	const double VOLUME_PRECISION{0.005};
+	const std::string{"./Downloading next song.mp3"};
+	bool _waiting_next_song{false};
 };
 
 #endif

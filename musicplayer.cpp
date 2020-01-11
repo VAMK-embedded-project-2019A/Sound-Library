@@ -140,13 +140,13 @@ int MusicPlayer::getVolume()
 void MusicPlayer::setCurrentSong(const std::string &name)
 {
 	std::unique_lock<std::mutex> music_player_lock(_mutex);
-	_current_song = name;
+	_current_song = FILE_PATH + name;
 }
 
 void MusicPlayer::setNextSong(const std::string &name)
 {
 	std::unique_lock<std::mutex> music_player_lock(_mutex);
-	_next_song = name;
+	_next_song = FILE_PATH + name;
 }
 
 bool MusicPlayer::control(ControlRequest request)

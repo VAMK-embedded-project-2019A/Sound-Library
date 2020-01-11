@@ -43,5 +43,5 @@ ctl.!default {
 
 #### 4. Compile and run our code
 -  Simply run 
-    > make
-    > sudo ./main 
+    > make  
+    > ./a.out 
